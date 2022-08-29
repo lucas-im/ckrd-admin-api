@@ -16,6 +16,7 @@ import {
 var bodyParser = require("body-parser");
 var jsonParser = bodyParser.json();
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
+var cors = require("cors");
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ const app: Express = express();
 const port = process?.env?.PORT || 8000;
 
 app.use(bodyParser.json({ limit: "300mb" }));
+app.use(cors());
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Unknown");
