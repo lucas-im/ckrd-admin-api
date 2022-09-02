@@ -30,7 +30,12 @@ export const modifyPremiumRequest = async (userId: string, status: string) => {
     const orderDoc = orderDocs.find((order) => order.data().userId === userId);
     await setDoc(
       orderDoc.ref,
-      { status: status, userId: orderDoc.data().userId, refferedBy: orderDoc.data().refferedBy, date: Timestamp.now() },
+      {
+        status: status,
+        userId: orderDoc.data().userId,
+        refferedBy: orderDoc.data()?.refferedBy ?? "",
+        date: Timestamp.now(),
+      },
       { merge: true }
     );
     const userDocs = await getDocs(collection(db, "users")).then((data) => data.docs);
@@ -192,21 +197,22 @@ export const getStatistics = async () => {
   try {
     const db = getFirestore(app);
     const users = await getDocs(collection(db, "users")).then((data) => data.docs);
-    const totalUsers = users.length;
-    const totalPremiumUsers = users.filter((doc) => doc.data().isPRO).length;
-    const totalNeverPremiumUsers = users.filter((doc) => !doc.data().expiryDate).length;
-    const totalFormerPremiumUsers = users.filter(
-      (doc) => doc.data()?.expiryDate?.seconds <= Timestamp.now().seconds
-    ).length;
+    const totalPremiumUsers = users.filter((doc) => doc.data().isPRO);
+    const totalNeverPremiumUsers = users.filter((doc) => !doc.data().expiryDate);
+    const totalFormerPremiumUsers = users.filter((doc) => doc.data()?.expiryDate?.seconds <= Timestamp.now().seconds);
 
     return {
       code: 200,
       message: "ok",
       data: {
-        total_users: totalUsers,
-        total_premium_users: totalPremiumUsers,
-        total_never_premium_users: totalNeverPremiumUsers,
-        total_former_premium_users: totalFormerPremiumUsers,
+        total_users: users.length,
+        total_users_timestamps: users.map((doc) => doc.data().createdAt.seconds),
+        total_premium_users: totalPremiumUsers.length,
+        total_premium_users_timestamps: totalPremiumUsers.map((doc) => doc.data().proStartedAt.seconds),
+        total_never_premium_users: totalNeverPremiumUsers.length,
+        total_never_premium_users_timestamps: totalNeverPremiumUsers.map((doc) => doc.data().createdAt.seconds),
+        total_former_premium_users: totalFormerPremiumUsers.length,
+        total_former_premium_users_timestamps: totalFormerPremiumUsers.map((doc) => doc.data().createdAt.seconds),
       },
     };
   } catch (error) {
