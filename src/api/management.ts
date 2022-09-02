@@ -33,7 +33,7 @@ export const modifyPremiumRequest = async (userId: string, status: string) => {
       {
         status: status,
         userId: orderDoc.data().userId,
-        refferedBy: orderDoc.data()?.refferedBy ?? "",
+        referredBy: orderDoc.data()?.referredBy ?? "",
         date: Timestamp.now(),
       },
       { merge: true }
@@ -206,13 +206,15 @@ export const getStatistics = async () => {
       message: "ok",
       data: {
         total_users: users.length,
-        total_users_timestamps: users.map((doc) => doc.data().createdAt.seconds),
+        total_users_timestamps: users.map((doc) => doc.data()?.createdAt?.seconds ?? 0),
         total_premium_users: totalPremiumUsers.length,
-        total_premium_users_timestamps: totalPremiumUsers.map((doc) => doc.data().proStartedAt.seconds),
+        total_premium_users_timestamps: totalPremiumUsers.map((doc) => doc.data()?.proStartedAt?.seconds ?? 0),
         total_never_premium_users: totalNeverPremiumUsers.length,
-        total_never_premium_users_timestamps: totalNeverPremiumUsers.map((doc) => doc.data().createdAt.seconds),
+        total_never_premium_users_timestamps: totalNeverPremiumUsers.map((doc) => doc.data()?.createdAt?.seconds ?? 0),
         total_former_premium_users: totalFormerPremiumUsers.length,
-        total_former_premium_users_timestamps: totalFormerPremiumUsers.map((doc) => doc.data().createdAt.seconds),
+        total_former_premium_users_timestamps: totalFormerPremiumUsers.map(
+          (doc) => doc.data()?.createdAt?.seconds ?? 0
+        ),
       },
     };
   } catch (error) {
